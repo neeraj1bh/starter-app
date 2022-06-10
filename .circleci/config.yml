@@ -8,6 +8,13 @@ jobs:
     steps:
       - checkout
       - run: npm run lint 
+  setup:
+    working_directory: ~/circleci-nodejs
+    docker:
+      - image: cimg/node:16.13.0
+    steps:
+      - checkout
+      - run: npm i
   build:
     working_directory: ~/circleci-nodejs
     docker:
@@ -26,7 +33,10 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - lint
+      - setup
+      - lint:
+          requires:
+            - setup
       - build:
           requires:
             - lint
