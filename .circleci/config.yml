@@ -36,12 +36,9 @@ workflows:
   build_and_test:
     jobs:
       - setup
-      - lint:
-          requires:
-            - setup
       - build:
           requires:
-            - lint
+            - setup
       - test:
           requires:
             - build
