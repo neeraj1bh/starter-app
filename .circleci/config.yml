@@ -7,7 +7,9 @@ jobs:
       - image: cimg/node:16.13.0
     steps:
       - checkout
-      - run: npm run lint 
+      - run: |
+          npm i -g eslint
+          npm run lint 
   setup:
     working_directory: ~/circleci-nodejs
     docker:
