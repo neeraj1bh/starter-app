@@ -4,21 +4,21 @@ jobs:
   lint:
     working_directory: ~/circleci-nodejs
     docker:
-      - image: "cimg/node:16.x"
+      - image: cimg/node:16.13.0
     steps:
       - checkout
       - run: npm run lint 
   build:
     working_directory: ~/circleci-nodejs
     docker:
-      - image: "cimg/node:16.x"
+      - image: cimg/node:16.13.0
     steps:
       - checkout
       - run: npm run build
   test:
     working_directory: ~/circleci-nodejs
     docker:
-      - image: "cimg/node:16.x"
+      - image: cimg/node:16.13.0
     steps:
       - checkout
       - run: npm run test:cov
