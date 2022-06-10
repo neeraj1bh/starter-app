@@ -32,7 +32,9 @@ jobs:
       - image: cimg/node:16.13.0
     steps:
       - checkout
-      - run: npm run test:cov
+      - run:  | 
+          sudo npm install
+          npm run test
 
 workflows:
   build_and_test:
