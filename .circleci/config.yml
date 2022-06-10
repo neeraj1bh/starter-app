@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          npm i -g eslint
+          sudo npm i -g eslint
           npm run lint 
   setup:
     working_directory: ~/circleci-nodejs
