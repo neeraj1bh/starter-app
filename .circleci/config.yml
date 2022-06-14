@@ -12,7 +12,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          sudo npm i -g eslint@latest eslint-config-prettier@latest eslint-plugin-prettier@latest @typescript-eslint/eslint-plugin@latest @typescript-eslint/parser@latest --save-dev
+          sudo npm install
           npm run lint
   setup:
     working_directory: ~/circleci-nodejs
@@ -43,12 +43,14 @@ jobs:
 workflows:
   build_and_push_image:
     jobs:
+      - lint
       - test
       - aws-ecr/build-and-push-image:
           repo: siddharthsathe
-          tag: "latest,v0.1.${CIRCLE_BUILD_NUM}"
+          tag: 'latest,v0.1.${CIRCLE_BUILD_NUM}'
           dockerfile: /Dockerfile
           path: .
           extra-build-args: '--compress'
           requires:
+            - lint
             - test
