@@ -11,9 +11,7 @@ jobs:
       - image: cimg/node:16.13.0
     steps:
       - checkout
-      - run: |
-          sudo npm i -g eslint@latest eslint-config-prettier@latest eslint-plugin-prettier@latest @typescript-eslint/eslint-plugin@latest @typescript-eslint/parser@latest --save-dev
-          npm run lint
+      - run: npm run lint
   setup:
     working_directory: ~/circleci-nodejs
     docker:
