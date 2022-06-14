@@ -40,13 +40,13 @@ jobs:
       - run: |
           sudo npm install
           npm run test:cov
+      - codecov/upload
 
 workflows:
   build_and_push_image:
     jobs:
       - lint
       - test
-      - codecov/upload
       - aws-ecr/build-and-push-image:
           repo: siddharthsathe
           tag: 'latest,v0.1.${CIRCLE_BUILD_NUM}'
