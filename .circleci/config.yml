@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   node: circleci/node@4.1.0
   aws-ecr: circleci/aws-ecr@7.0.0
+  codecov: codecov/codecov@3.2.3
 
 jobs:
   lint:
@@ -38,7 +39,8 @@ jobs:
       - checkout
       - run: |
           sudo npm install
-          npm run test
+          npm run test:cov
+      - codecov/upload
 
 workflows:
   build_and_push_image:
