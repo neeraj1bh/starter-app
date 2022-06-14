@@ -12,8 +12,8 @@ jobs:
     steps:
       - checkout
       - run: |
-        sudo npm install
-        npm run lint
+          sudo npm install
+          npm run lint
   setup:
     working_directory: ~/circleci-nodejs
     docker:
