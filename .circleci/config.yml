@@ -1,5 +1,9 @@
 version: 2.1
 
+orbs:
+  node: circleci/node@4.1.0
+  aws-ecr: circleci/aws-ecr@7.0.0
+
 jobs:
   lint:
     working_directory: ~/circleci-nodejs
@@ -37,12 +41,14 @@ jobs:
           npm run test
 
 workflows:
-  build_and_test:
+  build_and_push_image:
     jobs:
-      - setup
-      - build:
+      - test
+      - aws-ecr/build-and-push-image:
+          repo: siddharthsathe
+          tag: "latest,v0.1.${CIRCLE_BUILD_NUM}"
+          dockerfile: /Dockerfile
+          path: .
+          extra-build-args: '--compress'
           requires:
-            - setup
-      - test:
-          requires:
-            - build
+            - test
