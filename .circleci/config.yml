@@ -10,7 +10,7 @@ jobs:
   test:
     executor:
       name: node/default
-      tag: 14.15.1
+      tag: 16.13.0
     steps:
       - checkout
       - node/install-packages:
@@ -55,4 +55,6 @@ workflows:
   build_push_image_cloud_run_mangaged:
     jobs:
       - test
-    
+      - build_push_image_cloud_run_mangaged:
+          requires:
+          - test
