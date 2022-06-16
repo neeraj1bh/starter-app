@@ -1,58 +1,60 @@
 version: 2.1
 
 orbs:
+  # https://circleci.com/developer/orbs/orb/circleci/node
+  gcp-gcr: circleci/gcp-gcr@0.6.1
+  cloudrun: circleci/gcp-cloud-run@1.0.0
   node: circleci/node@4.1.0
-  aws-ecr: circleci/aws-ecr@7.0.0
-  codecov: codecov/codecov@3.2.3
 
 jobs:
-  lint:
-    working_directory: ~/circleci-nodejs
-    docker:
-      - image: cimg/node:16.13.0
-    steps:
-      - checkout
-      - run: |
-          sudo npm install
-          npm run lint
-  setup:
-    working_directory: ~/circleci-nodejs
-    docker:
-      - image: cimg/node:16.13.0
-    steps:
-      - checkout
-      - run: npm i
-  build:
-    working_directory: ~/circleci-nodejs
-    docker:
-      - image: cimg/node:16.13.0
-    steps:
-      - checkout
-      - run: |
-          sudo npm install
-          npm run build
   test:
-    working_directory: ~/circleci-nodejs
-    docker:
-      - image: cimg/node:16.13.0
+    executor:
+      name: node/default
+      tag: 14.15.1
     steps:
       - checkout
-      - run: |
-          sudo npm install
-          npm run test:cov
-      - codecov/upload
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          name: "Running tests"
+          command: npm run test
+
+  build_push_image_cloud_run_mangaged:
+    docker:
+      - image: circleci/node:16
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run:
+          name: Build docker image
+          command: |
+            echo 'export PATH=~$PATH:~/.local/bin' >> $BASH_ENV
+            echo ${GCP_PROJECT_KEY} | base64 --decode --ignore-garbage > $HOME/gcloud-service-key.json
+            echo 'export GOOGLE_CLOUD_KEYS=$(cat $HOME/gcloud-service-key.json)' >> $BASH_ENV
+            echo 'export TAG=${CIRCLE_SHA1}' >> $BASH_ENV
+            echo 'export IMAGE_NAME=$CIRCLE_PROJECT_REPONAME' >> $BASH_ENV && source $BASH_ENV
+            echo "Image Name:" $IMAGE_NAME
+            docker build -t us.gcr.io/$GOOGLE_PROJECT_ID/$IMAGE_NAME .
+      - gcp-gcr/gcr-auth:
+          gcloud-service-key: GOOGLE_CLOUD_KEYS
+          google-project-id: GOOGLE_PROJECT_ID
+          google-compute-zone: GOOGLE_COMPUTE_ZONE
+      - gcp-gcr/push-image:
+          google-project-id: GOOGLE_PROJECT_ID
+          registry-url: "us.gcr.io"
+          image: $IMAGE_NAME
+      - cloudrun/deploy:
+          platform: "managed"
+          image: "us.gcr.io/$GOOGLE_PROJECT_ID/$IMAGE_NAME"
+          service-name: "orb-gcp-cloud-run"
+          region: $GOOGLE_COMPUTE_ZONE
+          unauthenticated: true
 
 workflows:
-  build_and_push_image:
+  build_push_image_cloud_run_mangaged:
     jobs:
-      - lint
       - test
-      - aws-ecr/build-and-push-image:
-          repo: siddharthsathe
-          tag: 'latest,v0.1.${CIRCLE_BUILD_NUM}'
-          dockerfile: /Dockerfile
-          path: .
-          extra-build-args: '--compress'
+      - build_push_image_cloud_run_mangaged:
           requires:
-            - lint
-            - test
+          - test
