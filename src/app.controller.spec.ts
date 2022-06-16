@@ -16,7 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello GCP from NestJS!');
+      expect(appController.getHello()).toBe('Hello GCP 123 from NestJS!');
     });
   });
 });
